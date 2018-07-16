@@ -1,0 +1,169 @@
+<?xml version="1.0"?>
+
+<project name="mercadopublico_authentication_provider" default="all" basedir=".">
+
+	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+	<!-- Ant build script for the db user security providers, which authenticates          -->
+	<!-- a user identity, based on the Oracle database users dictionary.                   -->
+	<!-- For instance: authorize scott/tiger account.                                      -->
+	<!-- Adapted from the original simple sample providers provided by BEA.                -->
+	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+	<!--                                                                                   -->
+	<!-- Usage:                                                                            -->
+	<!--                                                                                   -->
+	<!--   1) build and install the db user providers                                      -->
+	<!--      prompt> ant                                                                  -->
+	<!--                                                                                   -->
+	<!--                                                                                   -->
+	<!--   2) de-install the sample providers and restore this directory to                -->
+	<!--      its original state.                                                          -->
+	<!--      prompt> ant clean                                                            -->
+	<!--                                                                                   -->
+	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+	<!--                                                                                   -->
+	<!-- Internal build targets (helpers)                                                  -->
+	<!--                                                                                   -->
+	<!--   1) build.mdf           : builds a provider's mbean definition                   -->
+	<!--                            file (MDF)                                             -->
+	<!--                                                                                   -->
+	<!--                                                                                   -->
+	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+
+	<!-- global properties -->
+	<property environment="env" />
+	<property name="lib" value="${env.WL_HOME}/server/lib" />
+	<property name="javalib" value="${env.JAVA_HOME}/lib" />
+	<property name="repolib" value="${env.HOME}/.m2/repository" />
+	<property name="httpcore.lib" value="${repolib}/org/apache/httpcomponents/httpcore/4.4.10" />
+	<property name="commons.logging.lib" value="${repolib}/commons-logging/commons-logging/1.0.4" />
+	<property name="commons.codec.lib" value="${repolib}/commons-codec/commons-codec/1.10" />
+	<property name="httpclient.lib" value="${repolib}/org/apache/httpcomponents/httpclient/4.5.6" />
+	<property name="jackson.databind.lib" value="${repolib}/com/fasterxml/jackson/core/jackson-databind/2.9.6" />
+	<property name="mbeantypes" value="${lib}/mbeantypes" />
+	<property name="sampleprovidersjar" value="mercadopublico-security-providers.jar" />
+	<property name="sample_dir" location="." />
+	<property name="src_dir" value="${sample_dir}/src/main" />
+	<property name="provider_src_dir" value="${src_dir}/java/" />
+	<property name="resource_src_dir" value="${src_dir}/resources" />
+	<property name="build_dir" value="${sample_dir}/target" />
+	<property name="class_dir" value="${build_dir}/classes" />
+	<property name="namespace" value="http://www.bea.com/ns/90/weblogic/security/samples" />
+
+
+	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+	<!-- Build These Samples                                               -->
+	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+
+	<target name="all" depends="clean">
+
+		<!-- Set up the build directories -->
+		<mkdir dir="${build_dir}" />
+		<mkdir dir="${class_dir}" />
+
+		<!-- Only copy over the commo dtd and sample provider xml files for now 
+		<copy todir="${build_dir}" flatten="true">
+			<fileset dir="${lib}">
+				<include name="commo.dtd" />
+				<include name="**/*.jar" />
+			</fileset>
+		</copy>
+
+		<copy todir="${build_dir}" flatten="true">
+			<fileset dir="${javalib}">
+				<include name="**/*.jar" />
+			</fileset>
+		</copy>
+
+		<copy todir="${class_dir}">
+			<fileset dir="${lib}">
+				<include name="weblogic.jar" />
+			</fileset>
+		</copy>
+
+		<copy todir="${class_dir}">
+			<fileset dir="${httpclient.lib}">
+				<include name="httpclient-4.5.6.jar" />
+			</fileset>
+		</copy>
+
+		<copy todir="${class_dir}">
+			<fileset dir="${jackson.databind.lib}">
+				<include name="jackson-databind-2.9.6.jar" />
+			</fileset>
+		</copy>-->
+
+		<copy todir="${build_dir}" flatten="false">
+			<fileset dir="${provider_src_dir}">
+				<include name="**/*.java" />
+			</fileset>
+			<!--<fileset dir="${provider_src_dir}">
+				<include name="cl/**" />
+			</fileset>-->
+			<!--<fileset dir="${provider_src_dir}">
+				<include name="**/*.xml" />
+				<include name="**/*.java" />
+			</fileset>-->
+		</copy>
+
+		<copy todir="${build_dir}" flatten="false">
+			<fileset dir="${resource_src_dir}">
+				<include name="MercadoPublicoAuthentication.xml" />
+				<include name="commo.dtd" />
+			</fileset>
+		</copy>
+
+		<path id="provider.class.path">
+			<fileset dir="${env.JAVA_HOME}/lib">
+				<include name="**/*.jar" />
+			</fileset>
+			<fileset dir="${env.ORACLE_HOME}/oracle_common/modules">
+				<include name="**/*.jar" />
+			</fileset>
+			<fileset dir="${env.ORACLE_HOME}/oracle_common/modules/features">
+				<include name="**/*.jar" />
+			</fileset>
+			<fileset dir="${env.WL_HOME}/server/lib">
+				<include name="**/*.jar" />
+			</fileset>
+			<fileset dir="${httpclient.lib}">
+				<include name="httpclient-4.5.6.jar" />
+			</fileset>
+			<fileset dir="${jackson.databind.lib}">
+				<include name="jackson-databind-2.9.6.jar" />
+			</fileset>
+		</path>
+
+		<!-- Build the sample security providers' jar file -->
+		<java classname="weblogic.management.commo.WebLogicMBeanMaker" fork="false">
+			<arg line="-files ${build_dir}" />
+			<!-- <arg line="-MDFDIR ${build_dir}" /> -->
+			<arg line="-MJF ${build_dir}/${sampleprovidersjar}" />
+			<arg line="-createStubs" />
+			<arg line="-noCompile" />
+			<arg line="-verbose" />
+			<arg line="-g" />
+			<arg line="-classpath ${env.CLASSPATH}" />
+			<!-- <jvmarg line="-Dfiles=${class_dir} -DMDFDIR=${class_dir} -DMJF=${class_dir}/${sampleprovidersjar} -DtargetNameSpace=${namespace} -DpreserveStubs=true -DcreateStubs=true" />-->
+		</java>
+			<echo message="${httpclient.lib}/httpclient-4.5.6.jar" />
+			<echo message="${jackson.databind.lib}/jackson-databind-2.9.6.jar" />
+
+		<!-- <javac srcdir="${provider_src_dir}" destdir="${class_dir}" debug="on" source="1.8">
+			<classpath refid="provider.class.path" />
+			<include name="**/*.java" />
+		</javac>-->
+
+		<!-- Deploy the sample security providers -->
+		<copy todir="${mbeantypes}" flatten="true">
+			<fileset dir="${build_dir}">
+				<include name="${sampleprovidersjar}" />
+			</fileset>
+		</copy>
+	</target>
+
+	<target name="clean">
+		<delete quiet="true" dir="${build_dir}" />
+		<delete quiet="true" dir="${class_dir}" />
+		<delete quiet="true" file="${mbeantypes}/${sampleprovidersjar}" />
+	</target>
+</project>

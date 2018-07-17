@@ -15,7 +15,8 @@ import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.login.FailedLoginException;
 import javax.security.auth.spi.LoginModule;
-import cl.mercadopublico.poc.oracle.proxy.auth.control.AuthentControl;
+
+import cl.mercadopublico.poc.oracle.proxy.auth.control.AuthenticateControl;
 import cl.mercadopublico.poc.oracle.proxy.auth.message.request.LoginRequest;
 import cl.mercadopublico.poc.oracle.proxy.auth.message.response.LoginResponse;
 import weblogic.security.principal.WLSAbstractPrincipal;
@@ -129,7 +130,7 @@ public class MercadoPublicoLoginModule implements LoginModule {
 			System.out.println("[MercadoPublicoLoginModule] process authentication.. userName " + userName
 					+ ", password " + password);
 			request = new LoginRequest(userName, password);
-			response = AuthentControl.getInstance().login(request);
+			response = AuthenticateControl.getInstance().login(request);
 
 			if (!("200".equalsIgnoreCase(response.getEstado().getCodigo()))) {
 				throwFailedLoginException("Authentication Failed:  " + response.getEstado().getMensaje());

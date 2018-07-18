@@ -26,7 +26,7 @@ public class AuthenticateControl {
 
 	private static final String REQUEST_URL = "https://administradordeserviciosapi.azure-api.net/tienda/Login/Autenticacion.json";
 
-	private static final String CONTENT_TYPE = "application/x-www-form-urlencoded";
+	private static final String CONTENT_TYPE = "application/json";
 
 	private static AuthenticateControl instance = null;
 
@@ -38,7 +38,7 @@ public class AuthenticateControl {
 	 * <p> Obtiene la instancia de la clase. Forma parte de la implementaci&oacute;n
 	 * del patr&oacute;n singleton. </p>
 	 *
-	 * @return instancia de <code>AuthentControl</code>.
+	 * @return instancia de <code>AuthenticateControl</code>.
 	 */
 	public static AuthenticateControl getInstance() {
 

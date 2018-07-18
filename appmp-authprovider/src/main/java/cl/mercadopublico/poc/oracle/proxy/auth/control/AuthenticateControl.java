@@ -26,7 +26,7 @@ public class AuthenticateControl {
 
 	private static final String REQUEST_URL = "https://administradordeserviciosapi.azure-api.net/tienda/Login/Autenticacion.json";
 
-	private static final String CONTENT_TYPE = "application/json";
+	private static final String CONTENT_TYPE = "application/x-www-form-urlencoded";
 
 	private static AuthenticateControl instance = null;
 
